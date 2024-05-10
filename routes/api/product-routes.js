@@ -46,7 +46,7 @@ router.post('/', async (req, res) => {
     const madeProduct = await Product.create(newProduct)
 
     // If no tags, end here and send response
-    if (!req.body.tagIds.length) {
+    if (!req.body.tagIds?.length) {
       return res.status(200).json(madeProduct);
     }
     // If tags, pull tag array, create two way associations via ProductTag, and send product and array of those associations as response
@@ -73,7 +73,7 @@ router.put('/:id', async (req, res) => {
         id: req.params.id,
       },
     })
-    if (req.body.tagIds && req.body.tagIds.length) {
+    if (req.body.tagIds && req.body.tagIds?.length) {
       const productTags = await ProductTag.findAll({
         where: { product_id: req.params.id }
       })
