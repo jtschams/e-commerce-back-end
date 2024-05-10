@@ -27,6 +27,9 @@ router.get('/:id', async (req, res) => {
         through: ProductTag
       }
     })
+    if (!tagData) {
+      return res.status(404).json(`No Tag found for id `)
+    }
     return res.status(200).json(tagData);
   } catch (err) {
     return res.status(500).json(err);
@@ -51,7 +54,10 @@ router.put('/:id', async (req, res) => {
         id: req.params.id
       }
     });
-    return res.status(200).json(tagData);
+    if (!tagData[0]) {
+      return res.status(404).json(`No Tag found for id `)
+    }
+    return res.status(200).json(`Updated tag at id ${req.params.id}`);
   } catch (err) {
     return res.status(500).json(err)
   }
@@ -60,7 +66,10 @@ router.put('/:id', async (req, res) => {
 // Delete a tag by its `id` value
 router.delete('/:id', async (req, res) => {
   try{
-    await Tag.destroy({ where: { id: req.params.id }})
+    const tagData = await Tag.destroy({ where: { id: req.params.id }})
+    if (!tagData) {
+      return res.status(404).json(`No Tag found for id `)
+    }
     return res.status(200).json(`Deleted tag at id ${req.params.id}`)
   } catch (err) {
     return res.status(500).json(err)

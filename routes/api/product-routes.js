@@ -21,6 +21,9 @@ router.get('/:id', async (req, res) => {
     const productData = await Product.findByPk(req.params.id, {
       include: [Category, Tag]
     })
+    if (!productData) {
+      return res.status(404).json(`No Product found for id `)
+    }
     return res.status(200).json(productData);
   } catch (err) {
     return res.status(500).json(err);
@@ -33,8 +36,12 @@ router.post('/', async (req, res) => {
     const newProduct = {
       product_name: req.body.product_name,
       price: req.body.price,
+      category_id: req.body.category_id,
       stock: req.body.stock,
       tagIds: req.body.tagIds
+    }
+    if (!newProduct.product_name || !newProduct.price || !newProduct.category_id || !newProduct.stock) {
+      return res.status(400).json('Name, price, category, and stock required.')
     }
     const madeProduct = await Product.create(newProduct)
 
@@ -85,21 +92,32 @@ router.put('/:id', async (req, res) => {
       const productTagsToRemove = productTags
       .filter(({ tag_id }) => !req.body.tagIds.includes(tag_id))
       .map(({ id }) => id);
+      // Throws error if no changes to product or tags
+      if (!product && !newProductTags && !productTagsToRemove) {
+        return res.status(404).json(`No Product found for id `)
+      }
       // run both actions
       await ProductTag.destroy({ where: { id: productTagsToRemove } })
       await ProductTag.bulkCreate(newProductTags)
     }
-    return res.json(product);
+    // Throws error if no changes to product and no tag list present
+    if (!product[0] && !req.body.tagIds) {
+      return res.status(404).json(`No Product found for id `)
+    }
+    return res.json(`Updated product at id ${req.params.id}`);
   } catch(err) {
-      // console.log(err);
-      res.status(500).json(err);
+    // console.log(err);
+    res.status(500).json(err);
   }
 });
 
 // Delete one product by its `id` value
 router.delete('/:id', async (req, res) => {
   try {
-    await Product.destroy({ where: { id:req.params.id }})
+    const destruct = await Product.destroy({ where: { id:req.params.id }})
+    if (!destruct) {
+      return res.status(404).json(`No Product found for id `)
+    }
     return res.status(200).json(`Deleted product at id ${req.params.id}`)
   } catch (err) {
     return res.status(500).json(err)

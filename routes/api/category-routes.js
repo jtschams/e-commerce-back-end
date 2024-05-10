@@ -25,6 +25,9 @@ router.get('/:id', async (req, res) => {
         model: Product
       }
     })
+    if (!catData) {
+      return res.status(404).json(`No Tag found for id `)
+    }
     return res.status(200).json(catData);
   } catch (err) {
     return res.status(500).json(err);
@@ -44,11 +47,14 @@ router.post('/', async (req, res) => {
 // Update a category by its `id` value
 router.put('/:id', async (req, res) => {
   try {
-    await Category.update(req.body, {
+    const catData = await Category.update(req.body, {
       where: {
         id: req.params.id
       }
     });
+    if (!catData[0]) {
+      return res.status(404).json(`No Tag found for id `)
+    }
     return res.status(200).json(`Updated category at id ${req.params.id}`);
   } catch (err) {
     return res.status(500).json(err)
@@ -58,7 +64,10 @@ router.put('/:id', async (req, res) => {
 // Delete a category by its `id` value
 router.delete('/:id', async (req, res) => {
   try {
-    await Category.destroy({ where: { id: req.params.id}});
+    const catData = await Category.destroy({ where: { id: req.params.id}});
+    if (!catData) {
+      return res.status(404).json(`No Tag found for id `)
+    }
     return res.status(200).json(`Deleted Category at id ${req.params.id}`)
   } catch (err) {
     return res.status(500).json(err)
