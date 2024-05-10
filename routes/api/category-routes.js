@@ -3,26 +3,66 @@ const { Category, Product } = require('../../models');
 
 // The `/api/categories` endpoint
 
-router.get('/', (req, res) => {
-  // TODO: find all categories
-  // be sure to include its associated Products
+// Find all categories
+router.get('/', async (req, res) => {
+  try {
+    const catData = await Category.findAll({
+      include: {
+        model: Product
+      }
+    })
+    return res.status(200).json(catData);
+  } catch (err) {
+    return res.status(500).json(err);
+  }
 });
 
-router.get('/:id', (req, res) => {
-  // TODO: find one category by its `id` value
-  // be sure to include its associated Products
+// Find one category by its `id` value
+router.get('/:id', async (req, res) => {
+  try {
+    const catData = await Category.findByPk(req.params.id, {
+      include: {
+        model: Product
+      }
+    })
+    return res.status(200).json(catData);
+  } catch (err) {
+    return res.status(500).json(err);
+  }
 });
 
-router.post('/', (req, res) => {
-  // TODO: create a new category
+// Create a new category
+router.post('/', async (req, res) => {
+  try {
+    const catData = await Category.create(req.body);
+    return res.status(200).json(catData)
+  } catch (err) {
+    return res.status(500).json(err)
+  }
 });
 
-router.put('/:id', (req, res) => {
-  // TODO: update a category by its `id` value
+// Update a category by its `id` value
+router.put('/:id', async (req, res) => {
+  try {
+    await Category.update(req.body, {
+      where: {
+        id: req.params.id
+      }
+    });
+    return res.status(200).json(`Updated category at id ${req.params.id}`);
+  } catch (err) {
+    return res.status(500).json(err)
+  }
 });
 
-router.delete('/:id', (req, res) => {
-  // TODO: delete a category by its `id` value
+// Delete a category by its `id` value
+router.delete('/:id', async (req, res) => {
+  try {
+    await Category.destroy({ where: { id: req.params.id}});
+    return res.status(200).json(`Deleted Category at id ${req.params.id}`)
+  } catch (err) {
+    return res.status(500).json(err)
+  }
 });
 
 module.exports = router;
